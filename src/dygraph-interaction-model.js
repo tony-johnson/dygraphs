@@ -229,7 +229,14 @@ DygraphInteraction.movePan = function(event, g, context) {
  *     dragStartX/dragStartY/etc. properties). This function modifies the
  *     context.
  */
-DygraphInteraction.endPan = DygraphInteraction.maybeTreatMouseOpAsClick;
+DygraphInteraction.endPan = function(event, g, context) {
+    DygraphInteraction.maybeTreatMouseOpAsClick(event, g, context);
+    var endPanCallback = g.getFunctionOption('endPanCallback');
+    if (endPanCallback) {
+        var viewWindow = g.xAxisRange();
+        endPanCallback.call(g, viewWindow[0], viewWindow[1], g.yAxisRanges());
+    }
+};
 
 /**
  * Called in response to an interaction model operation that
@@ -428,6 +435,8 @@ DygraphInteraction.startTouch = function(event, g, context) {
     });
   }
   context.initialTouches = touches;
+  context.isZooming = false;
+  context.isPanning = false;
 
   if (touches.length == 1) {
     // This is just a swipe.
@@ -556,9 +565,10 @@ DygraphInteraction.moveTouch = function(event, g, context) {
   g.drawGraph_(false);
 
   // We only call zoomCallback on zooms, not pans, to mirror desktop behavior.
-  if (didZoom && touches.length > 1 && g.getFunctionOption('zoomCallback')) {
-    var viewWindow = g.xAxisRange();
-    g.getFunctionOption("zoomCallback").call(g, viewWindow[0], viewWindow[1], g.yAxisRanges());
+  if (didZoom && touches.length > 1) {
+      context.isZooming = true;
+  } else {
+      context.isPanning = true;
   }
 };
 
@@ -566,6 +576,19 @@ DygraphInteraction.moveTouch = function(event, g, context) {
  * @private
  */
 DygraphInteraction.endTouch = function(event, g, context) {
+  if (context.isZooming) {
+      var zoomCallback = g.getFunctionOption('zoomCallback');
+      if (zoomCallback) {
+        var viewWindow = g.xAxisRange();
+        zoomCallback.call(g, viewWindow[0], viewWindow[1], g.yAxisRanges());
+      }
+  } else if (context.isPanning) {
+      var endPanCallback = g.getFunctionOption('endPanCallback');
+      if (endPanCallback) {
+        var viewWindow = g.xAxisRange();
+        endPanCallback.call(g, viewWindow[0], viewWindow[1], g.yAxisRanges());
+      }      
+  }
   if (event.touches.length !== 0) {
     // this is effectively a "reset"
     DygraphInteraction.startTouch(event, g, context);

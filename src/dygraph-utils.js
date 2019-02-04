@@ -865,7 +865,8 @@ var pixelSafeOptions = {
   'strokeWidth': true,
   'underlayCallback': true,
   'unhighlightCallback': true,
-  'zoomCallback': true
+  'zoomCallback': true,
+  'endPanCallback': true
 };
 
 /**

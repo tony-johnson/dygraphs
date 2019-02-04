@@ -87,6 +87,17 @@ OPTIONS_REFERENCE =  // <JSON>
     ],
     "description": "A function to call when the zoom window is changed (either by zooming in or out). When animatedZooms is set, zoomCallback is called once at the end of the transition (it will not be called for intermediate frames)."
   },
+  "endPanCallback": {
+    "default": "null",
+    "labels": ["Callbacks"],
+    "type": "function(minDate, maxDate, yRanges)",
+    "parameters": [
+      [ "minDate" , "milliseconds since epoch" ],
+      [ "maxDate" , "milliseconds since epoch." ],
+      [ "yRanges" , "is an array of [bottom, top] pairs, one for each y-axis." ]
+    ],
+    "description": "A function to call when a pan operation completes."
+  },
   "pointClickCallback": {
     "snippet": "function(e, point){<br>&nbsp;&nbsp;alert(point);<br>}",
     "default": "null",
